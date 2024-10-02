@@ -1,6 +1,8 @@
 # stopSmokingApp
 This Spring Boot application helps users track their progress in quitting smoking.  It allows users to create a quit plan, track their savings, and monitor their progress towards various health milestones.
+
 Backend: Spring Boot, Spring Data JPA, Hibernate, Spring Security, MySQL 
+
 Frontend: HTML, CSS, JavaScript, Thymeleaf
 
 Database Setup
