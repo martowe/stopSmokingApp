@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+  <title>Quit Smoking App</title>
+  <style>
+    .hidden { display: none; }
+    .flex-container {
+      display: flex;
+    }
+    .main-content {
+      flex: 3;
+    }
+    .right-column {
+      flex: 1.5;
+      margin-left: 20px;
+      padding: 10px;
+      border-left: 2px solid #ccc;
+      width: 300px;
+    }
+    .savings-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .savings-table th, .savings-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .savings-table th {
+      background-color: #f2f2f2;
+    }
+    .progress-bar {
+      height: 20px;
+      background-color: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #4caf50;
+      width: 0%;
+      transition: width 0.5s;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const formContainer = document.getElementById('formContainer');
+      const toggleButton = document.getElementById('toggleFormButton');
+      const quitDateTimeInput = document.getElementById('quitDateTime');
+      const cigarettesPerDayInput = document.getElementById('cigarettesPerDay');
+      const pricePerPackInput = document.getElementById('pricePerPack');
+      const moneyGoalInput = document.getElementById('moneyGoal');
+      const timeWithoutSmokingElement = document.getElementById('timeWithoutSmoking');
+      const moneySavedElement = document.getElementById('moneySaved');
+      const goalProgressElement = document.getElementById('goalProgress');
+      const progressBar = document.getElementById('progressBar').querySelector('.progress-bar-fill');
+
+      const dailySavingsElement = document.getElementById('dailySavings');
+      const weeklySavingsElement = document.getElementById('weeklySavings');
+      const monthlySavingsElement = document.getElementById('monthlySavings');
+      const threeMonthsSavingsElement = document.getElementById('threeMonthsSavings');
+      const sixMonthsSavingsElement = document.getElementById('sixMonthsSavings');
+      const yearlySavingsElement = document.getElementById('yearlySavings');
+      const fiveYearsSavingsElement = document.getElementById('fiveYearsSavings');
+      const tenYearsSavingsElement = document.getElementById('tenYearsSavings');
+
+      let quitDateTime = null;
+      let moneyGoal = 0;
+
+      function updateMoneySavingsTable(dailySavings) {
+        dailySavingsElement.textContent = '$' + dailySavings.toFixed(2);
+        weeklySavingsElement.textContent = '$' + (dailySavings * 7).toFixed(2);
+        monthlySavingsElement.textContent = '$' + (dailySavings * 30).toFixed(2);
+        threeMonthsSavingsElement.textContent = '$' + (dailySavings * 90).toFixed(2);
+        sixMonthsSavingsElement.textContent = '$' + (dailySavings * 180).toFixed(2);
+        yearlySavingsElement.textContent = '$' + (dailySavings * 365).toFixed(2);
+        fiveYearsSavingsElement.textContent = '$' + (dailySavings * 365 * 5).toFixed(2);
+        tenYearsSavingsElement.textContent = '$' + (dailySavings * 365 * 10).toFixed(2);
+      }
+
+      function calculateDailySavings() {
+        const cigarettesPerDay = parseFloat(cigarettesPerDayInput.value) || 0;
+        const pricePerPack = parseFloat(pricePerPackInput.value) || 0;
+        const pricePerCigarette = pricePerPack / 20; // Assuming 20 cigarettes per pack
+        return cigarettesPerDay * pricePerCigarette;
+      }
+
+      function updateTimers() {
+        if (quitDateTime) {
+          const now = new Date();
+          const timeDifference = now - quitDateTime;
+
+          const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+          timeWithoutSmokingElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+          const moneySavedPerDay = calculateDailySavings();
+          const moneySavedPerSecond = moneySavedPerDay / (24 * 60 * 60); // Savings per second
+          const totalSeconds = Math.floor(timeDifference / 1000); // Total seconds since quit
+
+          const moneySaved = totalSeconds * moneySavedPerSecond; // Calculate money saved up to the current second
+          moneySavedElement.textContent = '$' + moneySaved.toFixed(2);
+
+          updateMoneySavingsTable(moneySavedPerDay);
+
+          moneyGoal = parseFloat(moneyGoalInput.value) || 0;
+          const goalProgress = moneyGoal > 0 ? (moneySaved / moneyGoal) * 100 : 0;
+
+          const progressValue = Math.min(goalProgress, 100).toFixed(2);
+          progressBar.style.width = progressValue + '%';
+          goalProgressElement.textContent = progressValue + '%';
+        }
+      }
+
+      if (quitDateTimeInput && quitDateTimeInput.value) {
+        quitDateTime = new Date(quitDateTimeInput.value);
+      }
+
+      toggleButton.addEventListener('click', () => {
+        formContainer.classList.toggle('hidden');
+        toggleButton.textContent = formContainer.classList.contains('hidden') ? 'Edit Quit Plan' : 'Hide Form';
+      });
+
+      setInterval(updateTimers, 1000); // Update every second
+    });
+  </script>
+</head>
+<body>
+<div class="navbar">
+  <div>
+    <a href="/quit-progress">Progress</a>
+    <a href="/quit-plan">Quit Plan</a>
+    <a href="/quit-tips">Quit Tips</a>
+  </div>
+  <form th:action="@{/logout}" method="post" style="display: inline;">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit" class="logout-button">Logout</button>
+  </form>
+</div>
+
+<div class="flex-container">
+  <div class="main-content">
+    <h2>Quit Plan</h2>
+
+    <div th:if="${noQuitPlan}">
+      <p>You haven't created a quit plan yet. Please create one below:</p>
+      <form action="/save-quit-plan" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <label for="quitDateTime">Quit Date and Time:</label>
+        <input type="datetime-local" id="quitDateTime" name="quitDateTime" required>
+        <br>
+        <label for="cigarettesPerDay">Cigarettes per Day:</label>
+        <input type="number" id="cigarettesPerDay" name="cigarettesPerDay" required min="1">
+        <br>
+        <label for="pricePerPack">Price per Pack of Cigarettes:</label>
+        <input type="number" step="0.01" id="pricePerPack" name="pricePerPack" required min="0.01">
+        <br>
+        <label for="moneyGoal">Money Goal:</label>
+        <input type="number" step="0.01" id="moneyGoal" name="moneyGoal" required min="0.01">
+        <br>
+        <button type="submit">Save</button>
+      </form>
+    </div>
+
+    <div th:if="${quitPlan != null}">
+      <button id="toggleFormButton">Edit Quit Plan</button>
+
+      <div id="formContainer" class="hidden">
+        <form action="/save-quit-plan" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <label for="quitDateTime">Quit Date and Time:</label>
+          <input type="datetime-local" id="quitDateTime" name="quitDateTime" th:value="${quitPlan.quitDateTime}" required>
+          <br>
+          <label for="cigarettesPerDay">Cigarettes per Day:</label>
+          <input type="number" id="cigarettesPerDay" name="cigarettesPerDay" th:value="${quitPlan.cigarettesPerDay}" required min="1">
+          <br>
+          <label for="pricePerPack">Price per Pack of Cigarettes:</label>
+          <input type="number" step="0.01" id="pricePerPack" name="pricePerPack" th:value="${quitPlan.pricePerPack}" required min="0.01">
+          <br>
+          <label for="moneyGoal">Money Goal:</label>
+          <input type="number" step="0.01" id="moneyGoal" name="moneyGoal" th:value="${quitPlan.moneyGoal}" required min="0.01">
+
+          <br>
+          <button type="submit">Save</button>
+        </form>
+      </div>
+
+      <div>
+        <h3>Quit Plan Details:</h3>
+        <p>Quit Date and Time: <span th:text="${#temporals.format(quitPlan.quitDateTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <p>Cigarettes per Day: <span th:text="${quitPlan.cigarettesPerDay}"></span></p>
+        <p>Price per Pack of Cigarettes: $<span th:text="${#numbers.formatDecimal(quitPlan.pricePerPack, 1, 2)}"></span></p>
+        <p>Money Goal: $<span th:text="${#numbers.formatDecimal(quitPlan.moneyGoal, 1, 2)}"></span></p>
+
+
+
+
+      </div>
+
+      <div>
+        <h3>Progress:</h3>
+        <p>Time without Smoking: <span id="timeWithoutSmoking"></span></p>
+        <p>Money Saved: <span id="moneySaved">$0.00</span> / <span th:text="${quitPlan.moneyGoal}"></span></p>
+        <p>Goal Progress: <span id="goalProgress">0%</span></p>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-column">
+    <h3>Savings Projections:</h3>
+    <table class="savings-table">
+      <thead>
+      <tr>
+        <th>Time Period</th>
+        <th>Money Saved</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>1 day</td>
+        <td id="dailySavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>1 week</td>
+        <td id="weeklySavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>1 month</td>
+        <td id="monthlySavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>3 months</td>
+        <td id="threeMonthsSavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>6 months</td>
+        <td id="sixMonthsSavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>1 year</td>
+        <td id="yearlySavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>5 years</td>
+        <td id="fiveYearsSavings">$0.00</td>
+      </tr>
+      <tr>
+        <td>10 years</td>
+        <td id="tenYearsSavings">$0.00</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

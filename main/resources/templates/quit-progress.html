@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quit Smoking Progress</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="navbar">
+  <div>
+    <a href="/quit-progress">Progress</a>
+    <a href="/quit-plan">Quit Plan</a>
+    <a href="/quit-tips">Quit Tips</a>
+  </div>
+  <form th:action="@{/logout}" method="post" style="display: inline;">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit" class="logout-button">Logout</button>
+  </form>
+</div>
+<div class="content">
+  <div class="summary" th:if="${quitPlan != null}">
+    <p>Time without Smoking: <span id="timeWithoutSmoking">0d 0h 0m 0s</span></p>
+    <p>Money saved: $ <span id="moneySaved">0.00</span></p>
+    <p>Days without Smoking: <span id="daysWithoutSmoking">0</span></p>
+  </div>
+  <div th:unless="${quitPlan != null}">
+    <p>You haven't created a quit plan yet. <a href="/quit-plan">Create one now!</a></p>
+  </div>
+  <div class="dashboard">
+    <div class="milestone" th:each="milestone : ${milestones}">
+      <div class="progress-circle"
+           th:attr="data-progress=${#numbers.formatDecimal(milestone.progress, 1, 2)}"
+           th:style="'--progress: ' + ${milestone.progress} + '%;'">
+        <span class="progress-text" th:text="${#numbers.formatDecimal(milestone.progress, 1, 0) + '%'}"></span>
+      </div>
+      <div class="milestone-name" th:text="${milestone.name}">Milestone Name</div>
+      <div class="milestone-duration" th:text="${milestone.duration}">Milestone Duration</div>
+      <div class="milestone-progress" th:text="${#numbers.formatDecimal(milestone.progress, 1, 2) + '%'}">Milestone
+        Progress
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" id="quitDateTime"
+       th:value="${quitPlan != null ? #temporals.format(quitPlan.quitDateTime, 'yyyy-MM-dd''T''HH:mm:ss.SSS') : ''}"/>
+<input type="hidden" id="cigarettesPerDay" th:value="${quitPlan != null ? quitPlan.cigarettesPerDay : 0}"/>
+<input type="hidden" id="pricePerPack" th:value="${quitPlan != null ? quitPlan.pricePerPack : 0}"/>
+
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const quitDateTimeValue = document.getElementById('quitDateTime').value;
+      const quitDateTimeUTC = quitDateTimeValue ? new Date(quitDateTimeValue) : null;
+      const cigarettesPerDay = parseFloat(document.getElementById('cigarettesPerDay').value) || 0;
+      const pricePerPack = parseFloat(document.getElementById('pricePerPack').value) || 0;
+
+      const timeWithoutSmokingElement = document.getElementById('timeWithoutSmoking');
+      const moneySavedElement = document.getElementById('moneySaved');
+      const daysWithoutSmokingElement = document.getElementById('daysWithoutSmoking');
+
+      function updateMetrics() {
+        if (quitDateTimeUTC) {
+          const quitDateTimeLocal = new Date(quitDateTimeUTC.toLocaleString());
+          const now = new Date();
+          const timeDiff = now - quitDateTimeLocal;
+
+          const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+          timeWithoutSmokingElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+          daysWithoutSmokingElement.textContent = days;
+
+          const moneySaved = (days * cigarettesPerDay * pricePerPack) / (24 * 20);
+          moneySavedElement.textContent = moneySaved.toFixed(2);
+        } else {
+          timeWithoutSmokingElement.textContent = '0d 0h 0m 0s';
+          moneySavedElement.textContent = '0.00';
+          daysWithoutSmokingElement.textContent = '0';
+        }
+      }
+
+      updateMetrics();
+      setInterval(updateMetrics, 1000);
+    } catch (error) {
+      alert('An error occurred: ' + error.message);
+      console.error('Error initializing metrics:', error);
+    }
+  });
+</script>
+</body>
+</html>

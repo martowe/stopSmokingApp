@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quitting Tips</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="navbar">
+  <div>
+    <a href="/quit-progress">Progress</a>
+    <a href="/quit-plan">Quit Plan</a>
+    <a href="/quit-tips">Quit Tips</a>
+  </div>
+  <form action="/logout" method="post" style="display: inline;">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit" class="logout-button">Logout</button>
+  </form>
+</div>
+
+<div class="content">
+  <h1>Quitting Smoking Tips</h1>
+  <p>You have made a great decision to give up smoking. Here are some tips to help you succeed:</p>
+
+
+
+
+  <ol>
+    <li>Once you have picked your quit date, remember to add it to your calendar.</li>
+    <li>List your reasons to quit.</li>
+    <li>Tell people you're quitting.</li>
+    <li>If you have tried to quit before, remember what worked.</li>
+    <li>Use stop smoking aids.</li>
+    <li>Have a plan if you are tempted to smoke.</li>
+    <li>List your smoking triggers and how to avoid them.</li>
+    <li>Keep cravings at bay by keeping busy.</li>
+    <li>Exercise away the urge.</li>
+    <li>Throw away all your cigarettes before you start.</li>
+    <li>Remember, there is never "just 1 cigarette". You can do it!</li>
+  </ol>
+
+
+  <p>Good luck!</p>
+
+  <div class="tips-image">
+    <img src="images/tips.png" alt="Quitting Smoking Tips" style="max-width: 100%; height: auto;"/>
+  </div>
+</div>
+</body>
+</html>

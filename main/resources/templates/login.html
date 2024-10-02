@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+  <h1>Login</h1>
+
+  <div th:if="${error}">
+    <p th:text="${error}" style="color: red;"></p>
+  </div>
+
+  <form th:action="@{/login}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required/>
+    </div>
+
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required/>
+    </div>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <p>New user? <a th:href="@{/register}">Register</a></p>
+
+  <div sec:authorize="isAuthenticated()" class="welcome-message">
+    <p>Welcome, <span sec:authentication="name"></span>!</p>
+    <form th:action="@{/logout}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
+
+    
