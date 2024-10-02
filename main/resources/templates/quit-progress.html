@@ -21,8 +21,6 @@
 <div class="content">
   <div class="summary" th:if="${quitPlan != null}">
     <p>Time without Smoking: <span id="timeWithoutSmoking">0d 0h 0m 0s</span></p>
-    <p>Money saved: $ <span id="moneySaved">0.00</span></p>
-    <p>Days without Smoking: <span id="daysWithoutSmoking">0</span></p>
   </div>
   <div th:unless="${quitPlan != null}">
     <p>You haven't created a quit plan yet. <a href="/quit-plan">Create one now!</a></p>
@@ -57,8 +55,6 @@
       const pricePerPack = parseFloat(document.getElementById('pricePerPack').value) || 0;
 
       const timeWithoutSmokingElement = document.getElementById('timeWithoutSmoking');
-      const moneySavedElement = document.getElementById('moneySaved');
-      const daysWithoutSmokingElement = document.getElementById('daysWithoutSmoking');
 
       function updateMetrics() {
         if (quitDateTimeUTC) {
@@ -72,14 +68,8 @@
           const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
 
           timeWithoutSmokingElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-          daysWithoutSmokingElement.textContent = days;
-
-          const moneySaved = (days * cigarettesPerDay * pricePerPack) / (24 * 20);
-          moneySavedElement.textContent = moneySaved.toFixed(2);
         } else {
           timeWithoutSmokingElement.textContent = '0d 0h 0m 0s';
-          moneySavedElement.textContent = '0.00';
-          daysWithoutSmokingElement.textContent = '0';
         }
       }
 
