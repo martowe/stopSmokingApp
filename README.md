@@ -1,5 +1,5 @@
 # stopSmokingApp
-This Spring Boot application helps users track their progress in quitting smoking.  It allows users to create a quit plan, track their savings, and monitor their progress towards various health milestones.
+This Spring Boot application helps users track their progress in quitting smoking.  It allows users to create a quit plan, track their savings, and monitor their progress towards various health milestones.All user data is persistently stored in a MySQL database.
 
 Backend: Spring Boot, Spring Data JPA, Hibernate, Spring Security, MySQL 
 
